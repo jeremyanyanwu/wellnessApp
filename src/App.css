@@ -1,0 +1,251 @@
+/* ==============================
+   Auth Page Container (Unified Calming Lavender Background)
+============================== */
+.auth-page {
+  min-height: calc(100vh - 70px); /* Adjust for navbar height */
+  display: flex;
+  font-family: 'Poppins', sans-serif !important;
+  background: linear-gradient(135deg, #e6e6fa, #d1c4e9) !important; /* Soft lavender gradient */
+  overflow: hidden;
+  color: #333 !important;
+}
+
+/* ==============================
+   Left Panel (Subtle Overlay with Leaf Animation)
+============================== */
+.left-panel {
+  position: relative;
+  flex: 1;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  padding: 3rem !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(209, 196, 233, 0.05); /* Subtle lavender tint overlay */
+  z-index: 1;
+}
+
+.left-panel::after {
+  content: "🌱";
+  position: absolute;
+  font-size: 2rem;
+  color: rgba(107, 91, 149, 0.3);
+  animation: float 4s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.promo-content {
+  position: relative;
+  z-index: 2;
+  max-width: 90%;
+}
+
+.left-panel h1 {
+  font-size: 2.8rem !important;
+  margin-bottom: 1.5rem !important;
+  color: #4a4063 !important; /* Deep lavender */
+  line-height: 1.2;
+}
+
+.left-panel p {
+  font-size: 1.1rem !important;
+  max-width: 85% !important;
+  line-height: 1.6; /* Better readability */
+  color: #6b5b95 !important; /* Soft purple */
+  margin-bottom: 2rem;
+}
+
+.left-panel img {
+  max-height: 280px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow */
+}
+
+/* ==============================
+   Right Panel (Integrated Form)
+============================== */
+.auth-right {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 3rem !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+}
+
+/* ==============================
+   Auth Form Container (Open, Card-Free)
+============================== */
+.auth-form-container {
+  width: 100 !important;
+  max-width: 420px !important; /* Balanced width */
+  padding: 0 !important;
+}
+
+.auth-form {
+  width: 100 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ==============================
+   Titles
+============================== */
+.auth-title {
+  text-align: center !important;
+  margin-bottom: 2rem !important;
+  font-size: 1.8rem !important;
+  font-weight: 500 !important;
+  color: #4a4063 !important; /* Deep lavender */
+}
+
+/* ==============================
+   Form Labels and Inputs (With Focus Animation)
+============================== */
+.form-label {
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  color: #6b5b95 !important; /* Soft purple */
+  margin-bottom: 0.5rem !important;
+}
+
+.form-input,
+.auth-form .form-control {
+  border-radius: 12px !important;
+  margin-bottom: 0 !important;
+  padding: 1rem !important;
+  border: 2px solid #d1c4e9 !important; /* Lavender border */
+  font-size: 1rem !important;
+  width: 100 !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+}
+
+.form-input:focus,
+.auth-form .form-control:focus {
+  border-color: #6b5b95 !important; /* Deeper purple on focus */
+  box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1) !important;
+  transform: scale(1.02) !important; /* Slight scale-up */
+  outline: none !important;
+}
+
+/* ==============================
+   Buttons (Lavender Gradient)
+============================== */
+.auth-btn,
+.auth-form .btn {
+  width: 100 !important;
+  padding: 1rem !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #9575cd, #6b5b95) !important; /* Purple gradient */
+  border: none !important;
+  color: white !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  margin-top: 1rem;
+}
+
+.auth-btn:hover,
+.auth-form .btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(107, 91, 149, 0.3) !important;
+  background: linear-gradient(135deg, #7e57c2, #5e4a8a) !important;
+}
+
+.form-footer {
+  text-align: center;
+}
+
+.forgot-link {
+  color: #6b5b95 !important;
+  text-decoration: none !important;
+  font-size: 0.9rem !important;
+  transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: #4a4063 !important;
+  text-decoration: underline !important;
+}
+
+/* ==============================
+   Responsive Adjustments
+============================== */
+@media (max-width: 992px) {
+  .auth-page {
+    flex-direction: column !important;
+    height: auto !important;
+    padding: 1rem !important;
+  }
+
+  .left-panel,
+  .auth-right {
+    padding: 2rem 1rem !important;
+    height: auto !important;
+  }
+
+  .left-panel h1 {
+    font-size: 2.2rem !important;
+  }
+
+  .auth-form-container {
+    width: 100 !important;
+    max-width: none !important;
+  }
+
+  .form-input,
+  .auth-btn {
+    padding: 1.2rem !important;
+  }
+}
+
+/* ==============================
+   Navbar Styling
+============================== */
+.navbar {
+  height: 70px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+.navbar-brand {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  color: #6b5b95 !important; /* Purple accent */
+}
+
+/* Override Bootstrap Grid Gutter */
+.row.g-0 {
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+.row.g-0 > [class*="col-"] {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
