@@ -10,14 +10,26 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ovalmoney/react-native-fitness": "^0.5.3",
+    "@react-native-firebase/app": "^23.4.1",
+    "@react-native-firebase/auth": "^23.4.1",
+    "@react-native-firebase/firestore": "^23.4.1",
+    "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
-    "firebase": "^12.3.0",
-    "framer-motion": "^12.23.22",
+    "chart.js": "^4.5.1",
+    "eas-cli": "^16.23.1",
+    "firebase": "^12.4.0",
+    "framer-motion": "^12.23.24",
     "lottie-react": "^2.4.1",
+    "lucide-react": "^0.546.0",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.3"
+    "react-native-gesture-handler": "^2.28.0",
+    "react-oauth2-pkce": "^2.0.7",
+    "react-router-dom": "^7.9.3",
+    "react-swipeable": "^7.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

@@ -1,65 +1,322 @@
-import { useState } from "react";
-import { Form, Button, Card } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { useNavigate } from "react-router-dom";
+import { Home, ClipboardList, Brain, Activity, User } from "lucide-react";
+import "../App.css";
 
-function CheckInForm({ onSubmit }) {
-  const [mood, setMood] = useState("😊");
-  const [energy, setEnergy] = useState(5);
-  const [notes, setNotes] = useState("");
+export default function CheckInForm() {
+  const navigate = useNavigate();
+  const [checkins, setCheckins] = useState({
+    morning: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+    afternoon: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+    evening: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({ mood, energy, notes, date: new Date().toISOString() });
-    setNotes(""); // reset after submit
-    setEnergy(5);
-    setMood("😊");
+  const [error, setError] = useState(null);
+  const user = auth.currentUser;
+  const steps = 7500; // Mock steps
+  const stepGoal = 10000;
+
+  useEffect(() => {
+    if (user) {
+      const fetchCheckins = async () => {
+        try {
+          const docRef = doc(db, "checkins", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setCheckins(docSnap.data());
+          }
+        } catch (err) {
+          setError("Failed to load check-ins.");
+          console.error(err);
+        }
+      };
+      fetchCheckins();
+    }
+  }, [user]);
+
+  const saveCheckins = async (updatedCheckins) => {
+    if (user) {
+      try {
+        await setDoc(doc(db, "checkins", user.uid), updatedCheckins);
+      } catch (err) {
+        setError("Failed to save check-ins.");
+        console.error(err);
+      }
+    }
   };
 
+  const handleCheckInChange = (time, field, value) => {
+    setCheckins((prev) => ({
+      ...prev,
+      [time]: { ...prev[time], [field]: value },
+    }));
+  };
+
+  const submitCheckIn = async (time) => {
+    const { eaten, activity, mood, stress, sleep } = checkins[time];
+    let advice = "Great job checking in! Balanced habits help you stay focused.";
+    if (eaten === false) advice += " Eat soon for class energy.";
+    if (activity.toLowerCase().includes("study")) advice += " Take breaks to avoid burnout.";
+    const progress = ((steps / stepGoal) * 100).toFixed(0);
+    if (progress < 50) {
+      advice += ` At ${progress}% of ${stepGoal} steps—quick walk for focus!`;
+    } else if (steps >= stepGoal) {
+      advice += ` Crushed ${stepGoal} steps—prime study energy!`;
+    } else {
+      advice += ` ${progress}% to goal—keep moving!`;
+    }
+    advice += ` Mood: ${mood}/10, Stress: ${stress}/10, Sleep: ${sleep}h—keep up the good work!`;
+
+    const updated = {
+      ...checkins,
+      [time]: { ...checkins[time], submitted: true, advice },
+    };
+    setCheckins(updated);
+    await saveCheckins(updated);
+  };
+
+  const getTimeIcon = (time) => {
+    switch (time) {
+      case 'morning': return '🌅';
+      case 'afternoon': return '☀️';
+      case 'evening': return '🌙';
+      default: return '⏰';
+    }
+  };
+
+  const getTimeGradient = (time) => {
+    switch (time) {
+      case 'morning': return 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)';
+      case 'afternoon': return 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)';
+      case 'evening': return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      default: return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    }
+  };
+
+  const renderCheckIn = (time) => {
+    const { eaten, activity, mood, stress, sleep, submitted, advice } = checkins[time];
+    if (submitted) {
+      return (
+        <div className="auth-card">
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ 
+              width: '50px', 
+              height: '50px', 
+              borderRadius: '50%', 
+              background: getTimeGradient(time),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '1rem',
+              fontSize: '1.5rem'
+            }}>
+              {getTimeIcon(time)}
+            </div>
+            <div>
+              <h2 className="card-title" style={{ margin: 0 }}>
+                {time.charAt(0).toUpperCase() + time.slice(1)} Check-in
+              </h2>
+              <p style={{ color: '#34c759', fontSize: '0.9rem', margin: 0, fontWeight: '500' }}>
+                ✅ Completed
+              </p>
+            </div>
+          </div>
+          
+          <div style={{ 
+            background: 'rgba(52, 199, 89, 0.1)', 
+            borderRadius: '12px', 
+            padding: '1rem',
+            marginBottom: '1rem'
+          }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5' }}>{advice}</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>
+                {eaten ? '✅' : '❌'}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Eaten</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>
+                {mood}/10
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Mood</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>
+                {stress}/10
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Stress</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>
+                {sleep}h
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Sleep</div>
+            </div>
+          </div>
+          
+          {activity && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(102, 126, 234, 0.1)', borderRadius: '8px' }}>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#2d2d2d' }}>
+                <strong>Activity:</strong> {activity}
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return (
+      <div className="auth-card">
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ 
+            width: '50px', 
+            height: '50px', 
+            borderRadius: '50%', 
+            background: getTimeGradient(time),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '1rem',
+            fontSize: '1.5rem'
+          }}>
+            {getTimeIcon(time)}
+          </div>
+          <h2 className="card-title" style={{ margin: 0 }}>
+            {time.charAt(0).toUpperCase() + time.slice(1)} Check-in
+          </h2>
+        </div>
+
+        <div className="auth-form">
+          <div>
+            <label className="form-label">🍽️ Have you eaten?</label>
+            <select
+              value={eaten === null ? "" : eaten ? "yes" : "no"}
+              onChange={(e) => handleCheckInChange(time, "eaten", e.target.value === "yes")}
+              className="input"
+            >
+              <option value="">Select an option</option>
+              <option value="yes">✅ Yes</option>
+              <option value="no">❌ No</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="form-label">🏃‍♂️ What did you do today?</label>
+            <input
+              className="input"
+              placeholder="e.g., studied, exercised, socialized..."
+              value={activity}
+              onChange={(e) => handleCheckInChange(time, "activity", e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="form-label">😊 Mood: {mood}/10</label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={mood}
+              onChange={(e) => handleCheckInChange(time, "mood", parseInt(e.target.value))}
+              className="input"
+              style={{ 
+                background: `linear-gradient(to right, #ff6b6b 0%, #ffd93d 50%, #4ecdc4 100%)`,
+                height: '8px',
+                borderRadius: '4px'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500', marginTop: '0.25rem' }}>
+              <span>😢</span>
+              <span>😐</span>
+              <span>😊</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label">😰 Stress: {stress}/10</label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={stress}
+              onChange={(e) => handleCheckInChange(time, "stress", parseInt(e.target.value))}
+              className="input"
+              style={{ 
+                background: `linear-gradient(to right, #4ecdc4 0%, #ffd93d 50%, #ff6b6b 100%)`,
+                height: '8px',
+                borderRadius: '4px'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500', marginTop: '0.25rem' }}>
+              <span>😌</span>
+              <span>😐</span>
+              <span>😰</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label">😴 Sleep: {sleep} hours</label>
+            <input
+              type="range"
+              min="0"
+              max="12"
+              value={sleep}
+              onChange={(e) => handleCheckInChange(time, "sleep", parseInt(e.target.value))}
+              className="input"
+              style={{ 
+                background: `linear-gradient(to right, #667eea 0%, #764ba2 100%)`,
+                height: '8px',
+                borderRadius: '4px'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500', marginTop: '0.25rem' }}>
+              <span>0h</span>
+              <span>6h</span>
+              <span>12h</span>
+            </div>
+          </div>
+
+          <button className="button" onClick={() => submitCheckIn(time)}>
+            📝 Submit {time.charAt(0).toUpperCase() + time.slice(1)} Check-in
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const navItems = [
+    { id: "home", icon: Home, label: "Home", path: "/" },
+    { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
+    { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
+    { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
+    { id: "profile", icon: User, label: "Profile", path: "/profile" },
+  ];
+
   return (
-    <Card className="p-3 shadow-sm">
-      <Card.Body>
-        <Card.Title className="mb-3">Daily Wellness Check-In</Card.Title>
-        <Form onSubmit={handleSubmit}>
-          {/* Mood Selector */}
-          <Form.Group className="mb-3">
-            <Form.Label>How’s your mood today?</Form.Label>
-            <Form.Select value={mood} onChange={(e) => setMood(e.target.value)}>
-              <option value="😊">😊 Happy</option>
-              <option value="😐">😐 Neutral</option>
-              <option value="😔">😔 Sad</option>
-              <option value="😡">😡 Stressed</option>
-            </Form.Select>
-          </Form.Group>
-
-          {/* Energy Slider */}
-          <Form.Group className="mb-3">
-            <Form.Label>Energy Level: {energy}/10</Form.Label>
-            <Form.Range
-              min={1}
-              max={10}
-              value={energy}
-              onChange={(e) => setEnergy(e.target.value)}
-            />
-          </Form.Group>
-
-          {/* Notes */}
-          <Form.Group className="mb-3">
-            <Form.Label>Notes (optional)</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Anything on your mind today?"
-            />
-          </Form.Group>
-
-          <Button type="submit" variant="primary" className="w-100">
-            Submit Check-In
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+    <div className="container">
+      <h1 className="auth-title">Daily Check-in</h1>
+      {error && <p className="error">{error}</p>}
+      {renderCheckIn("morning")}
+      {renderCheckIn("afternoon")}
+      {renderCheckIn("evening")}
+      
+      <div className="bottom-nav">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => navigate(item.path)}
+            className={`nav-item ${item.id === 'checkin' ? 'active' : ''}`}
+          >
+            <item.icon />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
-
-export default CheckInForm;

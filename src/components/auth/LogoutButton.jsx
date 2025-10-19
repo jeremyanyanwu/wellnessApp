@@ -4,7 +4,7 @@ import { auth } from "../../firebaseConfig";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-function LogoutButton({ onLogout }) {
+function LogoutButton({ onLogout }) {hb54=
   const navigate = useNavigate();
 
   const handleLogout = async () => {

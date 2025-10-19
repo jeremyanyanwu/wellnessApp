@@ -1,134 +1,259 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Card, ProgressBar, ListGroup, Button, Navbar, Nav } from "react-bootstrap";
-import { motion } from "framer-motion";
-import LogoutButton from "./auth/LogoutButton";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, db } from "../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+import { Home, ClipboardList, Brain, Activity, User } from "lucide-react";
+import "../App.css";
 
-const Dashboard = () => {
-  const [score, setScore] = useState(75); // example score
-  const [activeSection, setActiveSection] = useState("checkin");
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-  const renderSection = () => {
-    switch (activeSection) {
-      case "checkin":
-        return (
-          <Row className="justify-content-center">
-            <Col md={10}>
-              <Row>
-                <Col md={4}>
-                  <Card className="shadow-sm mb-4">
-                    <Card.Body>
-                      <Card.Title>Today's Wellness Score</Card.Title>
-                      <ProgressBar now={score} label={`${score}/100`} className="mb-3" />
-                      <p className="text-muted">Great job! Keep it up.</p>
-                    </Card.Body>
-                  </Card>
-                </Col>
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const [checkins, setCheckins] = useState({});
+  const [wellnessScore, setWellnessScore] = useState(66); // Calculated from moods
+  const [dayStreak, setDayStreak] = useState(1); // Mock
+  const [checkinsCount, setCheckinsCount] = useState(0); // 0/3
 
-                <Col md={8}>
-                  <Card className="shadow-sm mb-4">
-                    <Card.Body>
-                      <Card.Title>Quick Check-In</Card.Title>
-                      <ListGroup variant="flush">
-                        <ListGroup.Item>😴 Sleep: 7 hours</ListGroup.Item>
-                        <ListGroup.Item>😊 Mood: 8/10</ListGroup.Item>
-                        <ListGroup.Item>💧 Hydration: 6/8 cups</ListGroup.Item>
-                        <ListGroup.Item>⚡ Stress: 3/10</ListGroup.Item>
-                        <ListGroup.Item>🔥 Activity: 45 minutes</ListGroup.Item>
-                      </ListGroup>
-                      <Button
-                        variant="primary"
-                        className="mt-3 w-100"
-                        onClick={() => alert("Check-in updated!")}
-                      >
-                        Update Check-In
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        await fetchCheckins(user.uid);
+      } else {
+        navigate("/login");
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
 
-              <Row>
-                <Col md={12}>
-                  <Card className="shadow-sm">
-                    <Card.Body>
-                      <Card.Title>Daily Habits</Card.Title>
-                      <p className="text-muted">Track your progress and get personalized tips.</p>
-                      <Button
-                        variant="success"
-                        className="me-2"
-                        onClick={() => alert("Habit logged!")}
-                      >
-                        Log Habit
-                      </Button>
-                      <Button
-                        variant="outline-secondary"
-                        onClick={() => alert("Here are your wellness tips!")}
-                      >
-                        View Tips
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-        );
-      case "mental":
-        return (
-          <Card className="shadow-sm p-4">
-            <Card.Title>Mental Health</Card.Title>
-            <p>Track your mood, stress, and mindfulness activities here.</p>
-            <Button onClick={() => alert("Open mental exercises!")}>Open Exercises</Button>
-          </Card>
-        );
-      case "profile":
-        return (
-          <Card className="shadow-sm p-4">
-            <Card.Title>Profile</Card.Title>
-            <p>View and edit your personal information.</p>
-            <Button onClick={() => alert("Edit profile!")}>Edit Profile</Button>
-          </Card>
-        );
-      case "ai":
-        return (
-          <Card className="shadow-sm p-4">
-            <Card.Title>AI Insights</Card.Title>
-            <p>Get personalized wellness tips powered by AI.</p>
-            <Button onClick={() => alert("Show AI insights!")}>Show Insights</Button>
-          </Card>
-        );
-      default:
-        return null;
+  const fetchCheckins = async (uid) => {
+    try {
+      const docRef = doc(db, "checkins", uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setCheckins(data);
+        const count = Object.values(data).filter((c) => c.submitted).length;
+        setCheckinsCount(count);
+        // Calculate wellness score from moods
+        const moods = Object.values(data).map((c) => c.mood || 5).filter((m) => m > 0);
+        setWellnessScore(moods.length > 0 ? Math.round(moods.reduce((a, b) => a + b, 0) / moods.length) : 66);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  const handleLogout = async () => {
+    await auth.signOut();
+  };
+
+  const data = {
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    datasets: [
+      {
+        label: "Wellness Score",
+        data: [70, 65, 80, 75, 66, 72, 68],
+        backgroundColor: "#ff9f55",
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, max: 100 } },
+  };
+
+  const navItems = [
+    { id: "home", icon: Home, label: "Home", path: "/" },
+    { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
+    { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
+    { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
+    { id: "profile", icon: User, label: "Profile", path: "/profile" },
+  ];
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="min-vh-100"
-      style={{ background: "linear-gradient(135deg, #e6e6fa, #d1c4e9)" }}
-    >
-      <Navbar bg="light" expand="lg" className="shadow-sm mb-4">
-        <Container>
-          <Navbar.Brand className="fw-bold text-primary">🌿 Wellness Dashboard</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link onClick={() => setActiveSection("checkin")}>Check-In</Nav.Link>
-              <Nav.Link onClick={() => setActiveSection("mental")}>Mental</Nav.Link>
-              <Nav.Link onClick={() => setActiveSection("profile")}>Profile</Nav.Link>
-              <Nav.Link onClick={() => setActiveSection("ai")}>AI Insights</Nav.Link>
-              <Nav.Link className="ms-2"><LogoutButton /></Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+    <div className="container">
+      <div className="top-nav">
+        <h1 className="nav-title">Wellness Assistant</h1>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
 
-      <Container className="py-3">{renderSection()}</Container>
-    </motion.div>
+      {/* Main Stats Grid */}
+      <div className="auth-card">
+        <h2 className="card-title">Today's Overview</h2>
+        <div className="profile-stats">
+          <div className="stat-card">
+            <div className="stat-number">{wellnessScore}</div>
+            <div className="stat-label">Wellness Score</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{dayStreak}</div>
+            <div className="stat-label">Day Streak</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{checkinsCount}/3</div>
+            <div className="stat-label">Check-ins</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Today's Check-ins */}
+      <h2 className="auth-title">Today's Check-ins</h2>
+      
+      {/* Morning Check-in */}
+      <div className="auth-card">
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ 
+            width: '40px', 
+            height: '40px', 
+            borderRadius: '50%', 
+            background: 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '1rem',
+            fontSize: '1.2rem'
+          }}>
+            🌅
+          </div>
+          <h3 className="card-title" style={{ margin: 0 }}>Morning</h3>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '1rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.morning?.mood || 0}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Mood</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.morning?.stress || 0}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Stress</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.morning?.sleep || 0}h
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Sleep</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Afternoon Check-in */}
+      <div className="auth-card">
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ 
+            width: '40px', 
+            height: '40px', 
+            borderRadius: '50%', 
+            background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '1rem',
+            fontSize: '1.2rem'
+          }}>
+            ☀️
+          </div>
+          <h3 className="card-title" style={{ margin: 0 }}>Afternoon</h3>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '1rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.afternoon?.mood || 0}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Mood</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.afternoon?.stress || 0}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Stress</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.afternoon?.sleep || 0}h
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Sleep</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Evening Check-in */}
+      <div className="auth-card">
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ 
+            width: '40px', 
+            height: '40px', 
+            borderRadius: '50%', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '1rem',
+            fontSize: '1.2rem'
+          }}>
+            🌙
+          </div>
+          <h3 className="card-title" style={{ margin: 0 }}>Evening</h3>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '1rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.evening?.mood || 0}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Mood</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.evening?.stress || 0}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Stress</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a1a1a' }}>
+              {checkins.evening?.sleep || 0}h
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#1a1a1a', fontWeight: '500' }}>Sleep</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Weekly Trends */}
+      <h2 className="auth-title">Weekly Trends</h2>
+      <div className="auth-card">
+        <div style={{ height: '250px', marginTop: '1rem' }}>
+          <Bar data={data} options={options} />
+        </div>
+      </div>
+
+      <div className="bottom-nav">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => navigate(item.path)}
+            className={`nav-item ${item.id === 'home' ? 'active' : ''}`}
+          >
+            <item.icon />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
-};
-
-export default Dashboard;
+}
