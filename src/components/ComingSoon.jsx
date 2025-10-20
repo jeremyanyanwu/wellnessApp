@@ -19,23 +19,25 @@ export default function ComingSoon() {
         </button>
       </div>
       
-      <div className="bottom-nav">
-        {[
-          { id: "home", icon: Home, label: "Home", path: "/" },
-          { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
-          { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
-          { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
-          { id: "profile", icon: User, label: "Profile", path: "/profile" },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={`nav-item ${item.id === 'insights' ? 'active' : ''}`}
-          >
-            <item.icon />
-            <span>{item.label}</span>
-          </button>
-        ))}
+      <div className="nav-wrapper">
+        <div className="bottom-nav">
+          {[
+            { id: "home", icon: Home, label: "Home", path: "/" },
+            { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
+            { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
+            { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
+            { id: "profile", icon: User, label: "Profile", path: "/profile" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              className={`nav-item ${item.id === 'insights' ? 'active' : ''}`}
+            >
+              <item.icon />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { auth, db, storage } from "../firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updateDoc } from "firebase/firestore";
 import { Home, ClipboardList, Brain, Activity, User } from "lucide-react";
@@ -12,6 +12,8 @@ export default function Profile() {
   const user = auth.currentUser;
   const [image, setImage] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
   const [checkins, setCheckins] = useState({});
   const [stats, setStats] = useState({ totalCheckins: 0, avgMood: 0, longestStreak: 0 });
   const [theme, setTheme] = useState("green"); // "green" or "blue"
@@ -20,15 +22,31 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       fetchCheckins(user.uid);
+      fetchUserProfile();
     }
   }, [user]);
 
+  const fetchUserProfile = async () => {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        setProfilePicture(userData.profilePicture);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user profile:", err);
+    }
+  };
+
   const fetchCheckins = async (uid) => {
     try {
-      const docRef = doc(db, "checkins", uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      // Get today's check-ins for current stats
+      const todayDocRef = doc(db, "dailyCheckins", uid);
+      const todayDocSnap = await getDoc(todayDocRef);
+      
+      if (todayDocSnap.exists()) {
+        const data = todayDocSnap.data();
         setCheckins(data);
         const totalCheckins = Object.values(data).filter((c) => c.submitted).length;
         const moods = Object.values(data).map((c) => c.mood || 5).filter((m) => m > 0);
@@ -41,6 +59,18 @@ export default function Profile() {
         if (avgMood >= 7) newBadges.push("Mood Master 😊");
         if (longestStreak >= 5) newBadges.push("Streak Champion 🔥");
         setBadges(newBadges);
+      } else {
+        // Initialize with empty data if no check-ins today
+        const today = new Date().toISOString().split('T')[0];
+        const defaultCheckins = {
+          morning: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+          afternoon: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+          evening: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+          date: today
+        };
+        setCheckins(defaultCheckins);
+        setStats({ totalCheckins: 0, avgMood: 5, longestStreak: 0 });
+        setBadges([]);
       }
     } catch (err) {
       console.error(err);
@@ -63,18 +93,66 @@ export default function Profile() {
   };
 
   const handleUpload = async () => {
-    if (!image || !user) return;
+    if (!image || !user) {
+      setUploadError("Please select an image first.");
+      return;
+    }
 
-    const storageRef = ref(storage, `profilePictures/${user.uid}/${image.name}`);
+    // Validate file size (max 5MB)
+    if (image.size > 5 * 1024 * 1024) {
+      setUploadError("Image size must be less than 5MB.");
+      return;
+    }
+
+    // Validate file type
+    if (!image.type.startsWith('image/')) {
+      setUploadError("Please select a valid image file.");
+      return;
+    }
+
+    const storageRef = ref(storage, `profilePictures/${user.uid}/${Date.now()}_${image.name}`);
+    
     try {
+      setUploadError(null);
+      setUploading(true);
+      
       const snapshot = await uploadBytes(storageRef, image);
       const url = await getDownloadURL(snapshot.ref);
-      await updateDoc(doc(db, "users", user.uid), { profilePicture: url });
+      
+      // Create or update user document in Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      if (userDocSnap.exists()) {
+        // Update existing document
+        await updateDoc(userDocRef, { 
+          profilePicture: url,
+          updatedAt: new Date().toISOString()
+        });
+      } else {
+        // Create new document
+        await setDoc(userDocRef, {
+          email: user.email,
+          profilePicture: url,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+      
+      // Also update the auth user's photoURL
+      await user.updateProfile({ photoURL: url });
+      
+      // Update local state
+      setProfilePicture(url);
       setImage(null);
-      setUploadError(null);
+      setUploading(false);
+      
       alert("Profile picture uploaded successfully!");
+      
     } catch (err) {
+      console.error("Upload error:", err);
       setUploadError("Failed to upload picture: " + err.message);
+      setUploading(false);
     }
   };
 
@@ -92,8 +170,13 @@ export default function Profile() {
           {/* User Info Card */}
           <div className="auth-card">
             <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              {user.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="profile-picture" />
+              {profilePicture || user.photoURL ? (
+                <img 
+                  src={profilePicture || user.photoURL} 
+                  alt="Profile" 
+                  className="profile-picture"
+                  style={{ objectFit: 'cover' }}
+                />
               ) : (
                 <div className="profile-picture" style={{ 
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -120,18 +203,56 @@ export default function Profile() {
                 type="file" 
                 accept="image/*" 
                 onChange={handleImageChange}
+                disabled={uploading}
                 style={{ 
                   width: '100%',
                   padding: '0.75rem',
                   border: '2px dashed rgba(102, 126, 234, 0.3)',
                   borderRadius: '12px',
-                  background: 'rgba(102, 126, 234, 0.05)',
+                  background: uploading ? 'rgba(102, 126, 234, 0.1)' : 'rgba(102, 126, 234, 0.05)',
                   marginBottom: '1rem',
-                  fontSize: '0.9rem'
+                  fontSize: '0.9rem',
+                  opacity: uploading ? 0.6 : 1
                 }}
               />
-              <button className="button" onClick={handleUpload} disabled={!image}>
-                📸 Upload Picture
+              {image && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <p style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#667eea', 
+                    margin: '0 0 0.5rem 0',
+                    textAlign: 'center'
+                  }}>
+                    Selected: {image.name} ({(image.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                  <div style={{ 
+                    textAlign: 'center',
+                    margin: '0.5rem 0'
+                  }}>
+                    <img 
+                      src={URL.createObjectURL(image)} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: '100px', 
+                        maxHeight: '100px', 
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '2px solid rgba(102, 126, 234, 0.3)'
+                      }} 
+                    />
+                  </div>
+                </div>
+              )}
+              <button 
+                className="button" 
+                onClick={handleUpload} 
+                disabled={!image || uploading}
+                style={{ 
+                  opacity: (!image || uploading) ? 0.6 : 1,
+                  cursor: (!image || uploading) ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {uploading ? '⏳ Uploading...' : '📸 Upload Picture'}
               </button>
               {uploadError && <p className="error">{uploadError}</p>}
             </div>
@@ -231,23 +352,25 @@ export default function Profile() {
         </div>
       )}
       
-      <div className="bottom-nav">
-        {[
-          { id: "home", icon: Home, label: "Home", path: "/" },
-          { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
-          { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
-          { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
-          { id: "profile", icon: User, label: "Profile", path: "/profile" },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={`nav-item ${item.id === 'profile' ? 'active' : ''}`}
-          >
-            <item.icon />
-            <span>{item.label}</span>
-          </button>
-        ))}
+      <div className="nav-wrapper">
+        <div className="bottom-nav">
+          {[
+            { id: "home", icon: Home, label: "Home", path: "/" },
+            { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
+            { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
+            { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
+            { id: "profile", icon: User, label: "Profile", path: "/profile" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              className={`nav-item ${item.id === 'profile' ? 'active' : ''}`}
+            >
+              <item.icon />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

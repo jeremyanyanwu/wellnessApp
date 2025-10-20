@@ -17,10 +17,20 @@ export default function Mental() {
     if (user) {
       const fetchCheckins = async () => {
         try {
-          const docRef = doc(db, "checkins", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setCheckins(docSnap.data());
+          const todayDocRef = doc(db, "dailyCheckins", user.uid);
+          const todayDocSnap = await getDoc(todayDocRef);
+          if (todayDocSnap.exists()) {
+            setCheckins(todayDocSnap.data());
+          } else {
+            // Initialize with empty data if no check-ins today
+            const today = new Date().toISOString().split('T')[0];
+            const defaultCheckins = {
+              morning: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+              afternoon: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+              evening: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+              date: today
+            };
+            setCheckins(defaultCheckins);
           }
         } catch (err) {
           setError("Failed to load data.");
@@ -77,23 +87,25 @@ export default function Mental() {
         {advice && <p className="success-message">{advice}</p>}
       </div>
       
-      <div className="bottom-nav">
-        {[
-          { id: "home", icon: Home, label: "Home", path: "/" },
-          { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
-          { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
-          { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
-          { id: "profile", icon: User, label: "Profile", path: "/profile" },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={`nav-item ${item.id === 'mental' ? 'active' : ''}`}
-          >
-            <item.icon />
-            <span>{item.label}</span>
-          </button>
-        ))}
+      <div className="nav-wrapper">
+        <div className="bottom-nav">
+          {[
+            { id: "home", icon: Home, label: "Home", path: "/" },
+            { id: "checkin", icon: ClipboardList, label: "Check-in", path: "/checkin" },
+            { id: "mental", icon: Brain, label: "Mental", path: "/mental" },
+            { id: "insights", icon: Activity, label: "Insights", path: "/insights" },
+            { id: "profile", icon: User, label: "Profile", path: "/profile" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              className={`nav-item ${item.id === 'mental' ? 'active' : ''}`}
+            >
+              <item.icon />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { Home, ClipboardList, Brain, Activity, User } from "lucide-react";
@@ -14,32 +14,80 @@ export default function CheckInForm() {
   });
 
   const [error, setError] = useState(null);
+  const [lastResetDate, setLastResetDate] = useState(null);
   const user = auth.currentUser;
   const steps = 7500; // Mock steps
   const stepGoal = 10000;
 
+  // Get today's date string (YYYY-MM-DD format)
+  const getTodayString = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
+  // Check if we need to reset for a new day
+  const checkDailyReset = async () => {
+    const today = getTodayString();
+    const todayDocRef = doc(db, "dailyCheckins", user.uid);
+    const todayDocSnap = await getDoc(todayDocRef);
+    
+    if (!todayDocSnap.exists() || todayDocSnap.data().date !== today) {
+      // It's a new day, reset check-ins
+      const defaultCheckins = {
+        morning: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+        afternoon: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+        evening: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+        date: today,
+        createdAt: new Date().toISOString()
+      };
+      
+      await setDoc(todayDocRef, defaultCheckins);
+      setCheckins(defaultCheckins);
+      setLastResetDate(today);
+    } else {
+      // Load today's existing check-ins
+      setCheckins(todayDocSnap.data());
+      setLastResetDate(today);
+    }
+  };
+
   useEffect(() => {
     if (user) {
-      const fetchCheckins = async () => {
+      const initializeCheckins = async () => {
         try {
-          const docRef = doc(db, "checkins", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setCheckins(docSnap.data());
-          }
+          await checkDailyReset();
         } catch (err) {
           setError("Failed to load check-ins.");
           console.error(err);
         }
       };
-      fetchCheckins();
+      initializeCheckins();
     }
   }, [user]);
 
   const saveCheckins = async (updatedCheckins) => {
     if (user) {
       try {
-        await setDoc(doc(db, "checkins", user.uid), updatedCheckins);
+        const today = getTodayString();
+        const todayDocRef = doc(db, "dailyCheckins", user.uid);
+        
+        // Save to today's document
+        await setDoc(todayDocRef, {
+          ...updatedCheckins,
+          date: today,
+          lastUpdated: new Date().toISOString()
+        });
+        
+        // Also save to historical collection for analytics
+        const historicalData = {
+          userId: user.uid,
+          date: today,
+          checkins: updatedCheckins,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Store in historical collection (this will create multiple documents over time)
+        await addDoc(collection(db, "checkinHistory"), historicalData);
+        
       } catch (err) {
         setError("Failed to save check-ins.");
         console.error(err);
@@ -300,22 +348,55 @@ export default function CheckInForm() {
   return (
     <div className="container">
       <h1 className="auth-title">Daily Check-in</h1>
+      
+      {/* Daily Reset Indicator */}
+      {lastResetDate && (
+        <div className="auth-card" style={{ marginBottom: '1rem', padding: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#2d2d2d', fontWeight: '500' }}>
+                📅 Today's Check-ins
+              </p>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: '#8e8e93' }}>
+                Reset daily at midnight
+              </p>
+            </div>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '12px',
+              fontSize: '0.8rem',
+              fontWeight: '600'
+            }}>
+              {new Date(lastResetDate).toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+      
       {error && <p className="error">{error}</p>}
       {renderCheckIn("morning")}
       {renderCheckIn("afternoon")}
       {renderCheckIn("evening")}
       
-      <div className="bottom-nav">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={`nav-item ${item.id === 'checkin' ? 'active' : ''}`}
-          >
-            <item.icon />
-            <span>{item.label}</span>
-          </button>
-        ))}
+      <div className="nav-wrapper">
+        <div className="bottom-nav">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              className={`nav-item ${item.id === 'checkin' ? 'active' : ''}`}
+            >
+              <item.icon />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

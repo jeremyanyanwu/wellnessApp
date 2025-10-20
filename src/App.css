@@ -52,6 +52,18 @@ body > div {
 }
 
 /* ==============================
+   Navigation Wrapper - Constrains nav bars within mobile card
+============================= */
+.nav-wrapper {
+  width: 100%;
+  max-width: 26rem; /* Same as mobile card */
+  margin: 0 auto;
+  box-sizing: border-box !important;
+  position: relative;
+  z-index: 1000;
+}
+
+/* ==============================
    Auth and Content Cards - 2025 Glassmorphism
 ============================= */
 .auth-card {
@@ -368,14 +380,13 @@ body > div {
   position: sticky;
   top: 1rem;
   z-index: 1001;
-  width: calc(100% - 2rem);
-  max-width: 24rem;
-  margin: 0 auto;
+  width: 100%;
   border-radius: 20px !important; /* Rounded corners */
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.1),
     0 2px 8px rgba(0, 0, 0, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  margin-bottom: 1.25rem;
 }
 
 .nav-title {
@@ -508,24 +519,7 @@ body * {
   text-decoration: underline;
 }
 
-/* Bottom Nav (v0 Tab Bar) */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.85);
-  border-top: 1px solid #d1d1d6;
-  display: flex;
-  justify-content: space-around;
-  padding: 0.5rem 0;
-  z-index: 1000;
-  width: 100%;
-  max-width: 28rem;
-  margin: 0 auto;
-  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
-  border-radius: 0 0 12px 12px;
-}
+/* Bottom Nav (v0 Tab Bar) - Removed fixed positioning to work with nav-wrapper */
 
 .nav-item {
   display: flex;
@@ -621,24 +615,7 @@ body * {
   text-decoration: underline;
 }
 
-/* Bottom Tab Bar (v0 Footer Navigation) */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.85);
-  border-top: 1px solid #d1d1d6;
-  display: flex;
-  justify-content: space-around;
-  padding: 0.5rem 0;
-  z-index: 1000;
-  width: 100%;
-  max-width: 28rem;
-  margin: 0 auto;
-  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
-  border-radius: 0 0 12px 12px;
-}
+/* Bottom Tab Bar (v0 Footer Navigation) - Removed fixed positioning to work with nav-wrapper */
 
 .nav-item {
   display: flex;

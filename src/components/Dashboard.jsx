@@ -37,16 +37,30 @@ export default function Dashboard() {
 
   const fetchCheckins = async (uid) => {
     try {
-      const docRef = doc(db, "checkins", uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      // Get today's check-ins
+      const todayDocRef = doc(db, "dailyCheckins", uid);
+      const todayDocSnap = await getDoc(todayDocRef);
+      
+      if (todayDocSnap.exists()) {
+        const data = todayDocSnap.data();
         setCheckins(data);
         const count = Object.values(data).filter((c) => c.submitted).length;
         setCheckinsCount(count);
         // Calculate wellness score from moods
         const moods = Object.values(data).map((c) => c.mood || 5).filter((m) => m > 0);
         setWellnessScore(moods.length > 0 ? Math.round(moods.reduce((a, b) => a + b, 0) / moods.length) : 66);
+      } else {
+        // If no today's data exists, initialize with empty check-ins
+        const today = new Date().toISOString().split('T')[0];
+        const defaultCheckins = {
+          morning: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+          afternoon: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+          evening: { eaten: null, activity: "", mood: 5, stress: 5, sleep: 0, submitted: false, advice: "" },
+          date: today
+        };
+        setCheckins(defaultCheckins);
+        setCheckinsCount(0);
+        setWellnessScore(66);
       }
     } catch (err) {
       console.error(err);
@@ -85,11 +99,13 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <div className="top-nav">
-        <h1 className="nav-title">Wellness Assistant</h1>
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
+      <div className="nav-wrapper">
+        <div className="top-nav">
+          <h1 className="nav-title">Wellness Assistant</h1>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Main Stats Grid */}
@@ -242,17 +258,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bottom-nav">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={`nav-item ${item.id === 'home' ? 'active' : ''}`}
-          >
-            <item.icon />
-            <span>{item.label}</span>
-          </button>
-        ))}
+      <div className="nav-wrapper">
+        <div className="bottom-nav">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.path)}
+              className={`nav-item ${item.id === 'home' ? 'active' : ''}`}
+            >
+              <item.icon />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
