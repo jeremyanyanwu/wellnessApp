@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db, storage } from "../firebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { updateDoc } from "firebase/firestore";
 import { Home, ClipboardList, Brain, Activity, User } from "lucide-react";
+import { calculateStreak } from "../utils/streakCalculator";
+import { 
+  requestNotificationPermission, 
+  hasNotificationPermission, 
+  initializeNotifications,
+  showCheckInReminder 
+} from "../utils/notifications";
 import "../App.css";
 
 export default function Profile() {
@@ -18,24 +25,58 @@ export default function Profile() {
   const [stats, setStats] = useState({ totalCheckins: 0, avgMood: 0, longestStreak: 0 });
   const [theme, setTheme] = useState("green"); // "green" or "blue"
   const [badges, setBadges] = useState([]);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const [reminderTime, setReminderTime] = useState("09:00");
+  const [notificationPermission, setNotificationPermission] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState("");
 
   useEffect(() => {
     if (user) {
       fetchCheckins(user.uid);
       fetchUserProfile();
+      checkNotificationPermission();
     }
   }, [user]);
 
+  const checkNotificationPermission = () => {
+    const hasPermission = hasNotificationPermission();
+    setNotificationPermission(hasPermission);
+  };
+
   const fetchUserProfile = async () => {
+    if (!user) return;
+    
     try {
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnap = await getDoc(userDocRef);
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
-        setProfilePicture(userData.profilePicture);
+        if (userData.profilePicture) {
+          setProfilePicture(userData.profilePicture);
+        }
+        // Load notification preferences
+        if (userData.notifications) {
+          setNotificationEnabled(userData.notifications.enabled || false);
+          setReminderTime(userData.notifications.reminderTime || "09:00");
+        }
+      } else {
+        // Document doesn't exist yet - this is OK, we'll create it when needed
+        console.log("User profile document doesn't exist yet - will be created when saving preferences");
       }
     } catch (err) {
-      console.error("Failed to fetch user profile:", err);
+      // Handle permission errors gracefully
+      const errorCode = err.code || err.message || '';
+      const errorMessage = err.message || '';
+      
+      if (errorCode.includes('permission') || errorCode.includes('Permission') || 
+          errorMessage.includes('permission') || errorMessage.includes('Permission') ||
+          errorCode === 'permission-denied' || errorCode === 'missing-or-insufficient-permissions') {
+        console.warn("Firestore permissions not available. Please deploy Firestore security rules.");
+        // Don't show error in UI on initial load - just log it
+        // The error will show when user tries to save preferences
+      } else {
+        console.error("Failed to fetch user profile:", err);
+      }
     }
   };
 
@@ -45,20 +86,89 @@ export default function Profile() {
       const todayDocRef = doc(db, "dailyCheckins", uid);
       const todayDocSnap = await getDoc(todayDocRef);
       
+      let todayData = {};
       if (todayDocSnap.exists()) {
-        const data = todayDocSnap.data();
-        setCheckins(data);
-        const totalCheckins = Object.values(data).filter((c) => c.submitted).length;
-        const moods = Object.values(data).map((c) => c.mood || 5).filter((m) => m > 0);
+        todayData = todayDocSnap.data();
+        setCheckins(todayData);
+        const totalCheckins = Object.values(todayData)
+          .filter(c => typeof c === 'object' && c.submitted)
+          .length;
+        const moods = Object.values(todayData)
+          .filter(c => typeof c === 'object' && c.mood)
+          .map(c => c.mood)
+          .filter(m => m > 0);
         const avgMood = moods.length > 0 ? Math.round(moods.reduce((a, b) => a + b, 0) / moods.length) : 5;
-        const longestStreak = 5; // Mock - calculate from timestamps
-        setStats({ totalCheckins, avgMood, longestStreak });
-        // Badges based on stats
-        const newBadges = [];
-        if (totalCheckins >= 5) newBadges.push("Beginner Explorer 🏆");
-        if (avgMood >= 7) newBadges.push("Mood Master 😊");
-        if (longestStreak >= 5) newBadges.push("Streak Champion 🔥");
-        setBadges(newBadges);
+        
+        // Calculate real streak from history
+        try {
+          const historyQuery = query(
+            collection(db, "checkinHistory"),
+            where("userId", "==", uid),
+            orderBy("timestamp", "desc"),
+            limit(30)
+          );
+          const historySnapshot = await getDocs(historyQuery);
+          const historyData = historySnapshot.docs.map(doc => doc.data());
+          
+          // Add today's data if it has check-ins
+          const today = new Date().toISOString().split('T')[0];
+          const hasCheckInToday = todayData.morning?.submitted || 
+                                  todayData.afternoon?.submitted || 
+                                  todayData.evening?.submitted;
+          
+          if (hasCheckInToday) {
+            const todayInHistory = historyData.find(d => d.date === today);
+            if (!todayInHistory) {
+              historyData.unshift({
+                date: today,
+                checkins: todayData,
+                userId: uid,
+                timestamp: new Date().toISOString()
+              });
+            }
+          }
+          
+          const streakData = calculateStreak(historyData);
+          const longestStreak = streakData.longestStreak;
+          setStats({ totalCheckins, avgMood, longestStreak });
+          
+          // Badges based on stats
+          const newBadges = [];
+          if (totalCheckins >= 5) newBadges.push("Beginner Explorer 🏆");
+          if (avgMood >= 7) newBadges.push("Mood Master 😊");
+          if (longestStreak >= 5) newBadges.push("Streak Champion 🔥");
+          if (longestStreak >= 30) newBadges.push("Monthly Warrior 🏅");
+          if (longestStreak >= 100) newBadges.push("Century Club 👑");
+          setBadges(newBadges);
+        } catch (streakErr) {
+          // Fallback if query fails
+          console.warn("Could not calculate streak:", streakErr);
+          try {
+            const historyQuery = query(
+              collection(db, "checkinHistory"),
+              where("userId", "==", uid),
+              limit(30)
+            );
+            const historySnapshot = await getDocs(historyQuery);
+            const historyData = historySnapshot.docs
+              .map(doc => doc.data())
+              .sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
+            
+            const streakData = calculateStreak(historyData);
+            const longestStreak = streakData.longestStreak;
+            setStats({ totalCheckins, avgMood, longestStreak });
+            
+            const newBadges = [];
+            if (totalCheckins >= 5) newBadges.push("Beginner Explorer 🏆");
+            if (avgMood >= 7) newBadges.push("Mood Master 😊");
+            if (longestStreak >= 5) newBadges.push("Streak Champion 🔥");
+            setBadges(newBadges);
+          } catch (err) {
+            console.error("Error calculating streak:", err);
+            setStats({ totalCheckins, avgMood, longestStreak: 0 });
+            setBadges([]);
+          }
+        }
       } else {
         // Initialize with empty data if no check-ins today
         const today = new Date().toISOString().split('T')[0];
@@ -160,6 +270,105 @@ export default function Profile() {
     const summary = `My Wellness Summary: Score ${stats.avgMood}/10, ${stats.totalCheckins} check-ins, ${stats.longestStreak} day streak. Join the journey! #StudentWellness`;
     navigator.clipboard.writeText(summary);
     alert("Copied summary to clipboard!");
+  };
+
+  const handleEnableNotifications = async () => {
+    if (!user) {
+      setNotificationStatus("Please log in to enable notifications.");
+      return;
+    }
+
+    // Request browser notification permission first
+    if (!notificationPermission) {
+      const permissionGranted = await requestNotificationPermission();
+      if (!permissionGranted) {
+        setNotificationStatus("❌ Browser notification permission denied. Please enable notifications in your browser settings.");
+        return;
+      }
+      setNotificationPermission(true);
+    }
+
+    // Save notification preferences to Firestore
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      
+      const notificationPrefs = {
+        enabled: notificationEnabled,
+        reminderTime: reminderTime,
+      };
+
+      const userData = {
+        email: user.email,
+        notifications: notificationPrefs,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (userDocSnap.exists()) {
+        // Update existing document
+        await updateDoc(userDocRef, {
+          notifications: notificationPrefs,
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        // Create new document
+        await setDoc(userDocRef, {
+          ...userData,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      // Initialize notifications if enabled
+      if (notificationEnabled) {
+        const result = await initializeNotifications({
+          enabled: true,
+          reminderTime: reminderTime,
+          currentStreak: stats.longestStreak || 0,
+        });
+        
+        if (result.success) {
+          setNotificationStatus("✅ Notifications enabled! You'll receive daily reminders at " + reminderTime + ".");
+          // Clear status after 3 seconds
+          setTimeout(() => setNotificationStatus(""), 3000);
+        } else {
+          setNotificationStatus(result.error || "⚠️ Failed to enable notifications. Check console for details.");
+        }
+      } else {
+        setNotificationStatus("✅ Notifications disabled.");
+        // Clear status after 2 seconds
+        setTimeout(() => setNotificationStatus(""), 2000);
+      }
+    } catch (err) {
+      console.error("Error saving notification preferences:", err);
+      
+      // Provide helpful error messages based on Firebase error codes
+      const errorCode = err.code || err.message || '';
+      const errorMessage = err.message || '';
+      
+      if (errorCode.includes('permission') || errorCode.includes('Permission') || 
+          errorMessage.includes('permission') || errorMessage.includes('Permission') ||
+          errorCode === 'permission-denied' || errorCode === 'missing-or-insufficient-permissions') {
+        setNotificationStatus("❌ Permission denied. Please deploy Firestore security rules to Firebase Console. See FIREBASE_SETUP.md");
+      } else if (errorCode === 'unavailable' || errorMessage.includes('unavailable')) {
+        setNotificationStatus("⚠️ Firestore is unavailable. Please check your internet connection and try again.");
+      } else {
+        setNotificationStatus("❌ Failed to save preferences: " + (errorMessage || errorCode || "Unknown error"));
+      }
+    }
+  };
+
+  const handleTestNotification = async () => {
+    if (!notificationPermission) {
+      const permissionGranted = await requestNotificationPermission();
+      if (!permissionGranted) {
+        setNotificationStatus("Permission denied. Please enable notifications in your browser settings.");
+        return;
+      }
+      setNotificationPermission(true);
+    }
+
+    showCheckInReminder(stats.longestStreak);
+    setNotificationStatus("Test notification sent! Check your notifications.");
   };
 
   return (
@@ -292,6 +501,82 @@ export default function Profile() {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="auth-card">
+            <h2 className="card-title">🔔 Daily Reminders</h2>
+            <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+              Get daily notifications to help maintain your wellness streak!
+            </p>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  checked={notificationEnabled}
+                  onChange={(e) => setNotificationEnabled(e.target.checked)}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                />
+                Enable daily check-in reminders
+              </label>
+            </div>
+
+            {notificationEnabled && (
+              <div style={{ marginBottom: '1rem' }}>
+                <label className="form-label">Reminder Time</label>
+                <input
+                  type="time"
+                  className="input"
+                  value={reminderTime}
+                  onChange={(e) => setReminderTime(e.target.value)}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            )}
+
+            {notificationStatus && (
+              <p style={{ 
+                fontSize: '0.85rem', 
+                color: notificationStatus.includes('error') || notificationStatus.includes('Failed') || notificationStatus.includes('denied') ? '#ff2d55' : '#34c759',
+                marginBottom: '1rem',
+                padding: '0.5rem',
+                background: notificationStatus.includes('error') || notificationStatus.includes('Failed') || notificationStatus.includes('denied') ? 'rgba(255, 45, 85, 0.1)' : 'rgba(52, 199, 89, 0.1)',
+                borderRadius: '8px'
+              }}>
+                {notificationStatus}
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button 
+                className="button" 
+                onClick={handleEnableNotifications}
+                style={{ flex: '1', minWidth: '120px' }}
+              >
+                {notificationEnabled ? '✅ Save Settings' : 'Enable Notifications'}
+              </button>
+              {notificationPermission && (
+                <button 
+                  className="button" 
+                  onClick={handleTestNotification}
+                  style={{ 
+                    flex: '1', 
+                    minWidth: '120px',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    color: '#1a1a1a'
+                  }}
+                >
+                  📬 Test Notification
+                </button>
+              )}
+            </div>
+
+            {!notificationPermission && (
+              <p style={{ fontSize: '0.8rem', color: '#8e8e93', marginTop: '0.5rem' }}>
+                Click "Enable Notifications" to request browser permission.
+              </p>
+            )}
           </div>
 
           {/* Theme Switcher */}

@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebaseConfig";
 import { Home, ClipboardList, User, Activity, Brain } from "lucide-react";
+import { useNotifications } from "./hooks/useNotifications";
 
 import Login from "./components/auth/Login.jsx";
 import Register from "./components/auth/Register";
@@ -11,12 +12,15 @@ import Dashboard from "./components/Dashboard";
 import CheckInForm from "./components/CheckInForm";
 import Profile from "./components/Profile";
 import Mental from "./components/Mental"; // AI Advice Page
-import ComingSoon from "./components/ComingSoon"; // Placeholder for Insights
+import Insights from "./components/Insights"; // AI Insights Page
 
 export default function App() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [currentScreen, setCurrentScreen] = useState("login");
+
+  // Initialize notifications when user is logged in
+  useNotifications();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -46,7 +50,7 @@ export default function App() {
     dashboard: Dashboard,
     checkin: CheckInForm,
     mental: Mental, // v0: AI Advice Page (query input, personalized tips)
-    insights: ComingSoon, // v0: "Coming Soon" for AI Insights
+    insights: Insights, // AI Insights Page with personality and analytics
     profile: Profile,
   };
 
