@@ -1,18 +1,45 @@
 {
   "name": "wellness-app",
-  "version": "0.0.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@ovalmoney/react-native-fitness": "^0.5.3",
+    "@react-native-firebase/app": "^23.4.1",
+    "@react-native-firebase/auth": "^23.4.1",
+    "@react-native-firebase/firestore": "^23.4.1",
+    "axios": "^1.12.2",
+    "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.1",
+    "eas-cli": "^16.23.1",
+    "firebase": "^12.4.0",
+    "framer-motion": "^12.23.24",
+    "lottie-react": "^2.4.1",
+    "lucide-react": "^0.546.0",
+    "react": "^19.1.1",
+    "react-bootstrap": "^2.10.10",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.1.1",
+    "react-native-gesture-handler": "^2.28.0",
+    "react-oauth2-pkce": "^2.0.7",
+    "react-router-dom": "^7.9.3",
+    "react-swipeable": "^7.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^4.4.9"
+    "@eslint/js": "^9.33.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "vite": "^7.1.2"
   }
 }

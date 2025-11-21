@@ -1,0 +1,1584 @@
+/* src/App.css - 2025 Modern Mobile Design */
+
+/* ==============================
+   Base Styles - 2025 Modern Design
+============================= */
+body {
+  margin: 0;
+  font-family: -apple-system, 'Inter', 'SF Pro Display', system-ui, sans-serif; /* Modern system fonts */
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  color: #1a1a1a; /* Modern dark text */
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; /* Modern gradient */
+  position: relative;
+}
+
+/* Modern glassmorphism backdrop */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  backdrop-filter: blur(20px);
+  z-index: -1;
+}
+
+/* ==============================
+   Container for Centered Content - 2025 Design
+============================= */
+body > div {
+  flex: 1;
+  padding: 1.25rem; /* Modern spacing */
+  width: 100%;
+  max-width: 26rem; /* Slightly narrower for modern feel */
+  margin: 0 auto;
+  box-sizing: border-box !important;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 1.25rem; /* Normal bottom padding */
+  padding-top: 1rem; /* Top spacing */
+}
+
+/* ==============================
+   Navigation Wrapper - Constrains nav bars within mobile card
+============================= */
+.nav-wrapper {
+  width: 100%;
+  max-width: 26rem; /* Same as mobile card */
+  margin: 0 auto;
+  box-sizing: border-box !important;
+  position: relative;
+  z-index: 1000;
+}
+
+/* ==============================
+   Auth and Content Cards - 2025 Glassmorphism
+============================= */
+.auth-card {
+  background: rgba(255, 255, 255, 0.25) !important; /* Modern glassmorphism */
+  backdrop-filter: blur(20px) !important; /* Glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.18) !important; /* Subtle border */
+  border-radius: 20px !important; /* Modern rounded corners */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important; /* Multi-layer shadows */
+  padding: 1.75rem; /* Increased padding for breathing room */
+  margin-bottom: 1.25rem; /* Consistent spacing */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth transitions */
+  cursor: grab;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.auth-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.auth-card:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+/* Page-specific card adjustments */
+.checkin-form {
+  padding: 1rem; /* Slightly reduced for form layout */
+}
+
+.profile-settings {
+  margin-top: 1rem; /* Space for settings section */
+}
+
+/* ==============================
+   Titles - 2025 Modern Typography
+============================= */
+.auth-title {
+  font-size: clamp(1.4rem, 6vw, 1.8rem) !important; /* Larger, more impactful */
+  font-weight: 700; /* Bolder weight */
+  color: #ffffff !important; /* White text for contrast */
+  margin-bottom: 2rem !important; /* More breathing room */
+  text-align: center;
+  padding-top: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
+  letter-spacing: -0.02em; /* Tighter letter spacing */
+}
+
+.card-title {
+  font-size: 1.1rem !important;
+  font-weight: 600;
+  color: #1a1a1a !important;
+  margin-bottom: 1rem !important;
+  letter-spacing: -0.01em;
+}
+
+/* ==============================
+   Form Styles - 2025 Modern Design
+============================= */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem !important; /* Increased spacing */
+  width: 100% !important;
+  padding: 0;
+  z-index: 3;
+}
+
+.form-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2d2d2d !important; /* Darker for better contrast */
+  margin-bottom: 0.5rem !important;
+  text-align: left;
+  letter-spacing: -0.01em;
+}
+
+.input {
+  border-radius: 16px !important; /* More rounded for modern feel */
+  padding: 1rem 1.25rem; /* Increased padding */
+  border: 2px solid rgba(255, 255, 255, 0.2) !important; /* Subtle border */
+  font-size: 1rem;
+  width: 100% !important;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.9) !important; /* Semi-transparent white */
+  backdrop-filter: blur(10px) !important; /* Glass effect */
+  min-height: 52px !important; /* Larger touch target */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.input:focus {
+  border-color: #667eea !important; /* Modern blue accent */
+  background: rgba(255, 255, 255, 0.95) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  outline: none;
+}
+
+.input::placeholder {
+  color: #8e8e93;
+  font-weight: 400;
+}
+
+/* ==============================
+   Select (for Check-in) - 2025 Design
+============================= */
+.picker {
+  height: 52px;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  min-height: 52px;
+  appearance: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.picker:focus {
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  outline: none;
+}
+
+/* Custom select arrow */
+.picker {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  padding-right: 3rem;
+}
+
+/* ==============================
+   Buttons - 2025 Modern Design
+============================= */
+.button {
+  width: 100% !important;
+  padding: 1rem 1.5rem;
+  border-radius: 16px !important; /* Modern rounded corners */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; /* Modern gradient */
+  border: none;
+  color: #ffffff !important;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 1.25rem !important;
+  min-height: 52px !important; /* Larger touch target */
+  box-shadow: 
+    0 4px 16px rgba(102, 126, 234, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: -0.01em;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(102, 126, 234, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.button:hover::before {
+  left: 100%;
+}
+
+.button:active {
+  transform: translateY(0);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+  animation: pulse 0.3s ease;
+}
+
+/* ==============================
+   Footer Links
+============================= */
+.form-footer {
+  text-align: center;
+  margin-top: 1rem !important; /* Increased spacing */
+}
+
+.forgot-link {
+  color: #ff9f55 !important; /* Wellness orange accent */
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  display: inline-block;
+  min-height: 44px !important; /* iOS minimum touch target */
+  transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+  color: #f08c3d !important; /* Lighter orange hover */
+  text-decoration: underline;
+}
+
+/* ==============================
+   Error/Success Messages
+============================= */
+.error {
+  color: #ff2d55 !important; /* iOS systemRed */
+  font-size: 0.9rem;
+  margin-top: 0.75rem !important; /* Increased spacing */
+}
+
+.success-message {
+  color: #34c759 !important; /* iOS systemGreen */
+  font-size: 0.9rem;
+  margin-top: 0.75rem !important; /* Increased spacing */
+}
+
+/* ==============================
+   Bottom Tab Bar - 2025 Modern Design
+============================= */
+.bottom-nav {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95) !important; /* More opaque white background */
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important; /* Full border */
+  display: flex;
+  justify-content: space-around;
+  padding: 0.75rem 1rem;
+  z-index: 1000;
+  width: 100%;
+  border-radius: 20px !important; /* Rounded corners like other cards */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important; /* Card-like shadow */
+  margin: 1.25rem 0 0 0; /* Spacing like other cards */
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  color: #6b7280 !important; /* Darker gray for better contrast on white */
+  font-size: 0.7rem;
+  font-weight: 500;
+  min-width: 0;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 48px !important;
+  border-radius: 12px;
+  position: relative;
+}
+
+.nav-item.active {
+  color: #667eea !important;
+  background: rgba(102, 126, 234, 0.15) !important; /* Slightly more visible background */
+  transform: scale(1.05);
+}
+
+.nav-item svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-bottom: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.nav-item.active svg {
+  transform: scale(1.1);
+}
+
+/* ==============================
+   Top Navigation Bar - 2025 Modern Design
+============================= */
+.top-nav {
+  background: rgba(255, 255, 255, 0.25) !important; /* Glassmorphism */
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 1rem;
+  z-index: 1001;
+  width: 100%;
+  border-radius: 20px !important; /* Rounded corners */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  margin-bottom: 1.25rem;
+}
+
+.nav-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff !important; /* White text for contrast */
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
+}
+
+.logout-btn {
+  color: #ffffff !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  min-height: 40px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px) !important;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+/* ==============================
+   Animations for Engagement
+============================= */
+.auth-card {
+  animation: fadeInUp 0.5s ease-out; /* Smooth entry animation */
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.button:active {
+  animation: pulse 0.3s ease; /* Button press feedback */
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ==============================
+   Responsive Adjustments (Tablet/Desktop)
+============================= */
+@media (min-width: 768px) {
+  body > div {
+    padding: 2rem; /* Increased padding for tablets */
+  }
+
+  .auth-title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .form-label {
+    font-size: 1rem;
+  }
+
+  .input {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .button {
+    font-size: 1.1rem;
+    padding: 1rem;
+  }
+
+  .forgot-link {
+    font-size: 0.95rem;
+  }
+
+  .error {
+    font-size: 0.95rem;
+  }
+
+  .success-message {
+    font-size: 0.95rem;
+  }
+}
+
+/* Ensure all child elements inherit box-sizing for consistency */
+body * {
+  box-sizing: border-box !important;
+}
+
+/* Top Nav (v0 Header) */
+.top-nav {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid #d1d1d6;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1c2526;
+  margin: 0;
+}
+
+.logout-btn {
+  color: #ff9f55;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  min-height: 44px;
+  transition: color 0.2s ease;
+}
+
+.logout-btn:hover {
+  color: #f08c3d;
+  text-decoration: underline;
+}
+
+/* Bottom Nav (v0 Tab Bar) - Removed fixed positioning to work with nav-wrapper */
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  color: #8e8e93;
+  font-size: 0.75rem;
+  min-height: 44px;
+  transition: color 0.2s ease;
+}
+
+.nav-item.active {
+  color: #ff9f55;
+}
+
+.nav-item svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Chart Styling for v0 Weekly Trends */
+.auth-card .chart-container {
+  height: 200px;
+}
+
+.auth-card .bar-chart {
+  height: 200px;
+  margin-top: 1rem;
+}
+
+/* Card Spacing for v0 (Summary Cards) */
+.auth-card {
+  margin-bottom: 1rem;
+}
+
+.auth-title {
+  margin-bottom: 1rem;
+}
+
+/* v0 Check-in Cards (Mood/Stress/Sleep) */
+.auth-card .trend-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-card .trend-item {
+  font-size: 0.9rem;
+  color: #3a3a3c;
+}
+
+/* v0 Demo Additions - Append to End of Your App.css */
+
+/* Top Nav (v0 Header - Simple Wellness App Header) */
+.top-nav {
+  background: rgba(255, 255, 0.85, 0.85);
+  border-bottom: 1px solid #d1d1d6;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1c2526;
+  margin: 0;
+}
+
+.logout-btn {
+  color: #ff9f55;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  min-height: 44px;
+  transition: color 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.logout-btn:hover {
+  color: #f08c3d;
+  text-decoration: underline;
+}
+
+/* Bottom Tab Bar (v0 Footer Navigation) - Removed fixed positioning to work with nav-wrapper */
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  color: #8e8e93;
+  font-size: 0.75rem;
+  min-height: 44px;
+  transition: color 0.2s ease;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  color: #ff9f55;
+}
+
+.nav-item svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Chart Styling for v0 Weekly Trends */
+.auth-card .chart-container {
+  height: 200px;
+  margin: 1rem 0;
+}
+
+/* Card Spacing for v0 (Summary Cards) */
+.auth-card {
+  margin-bottom: 1rem;
+}
+
+.auth-title {
+  margin-bottom: 1rem;
+}
+
+/* v0 Check-in Cards (Mood/Stress/Sleep) */
+.auth-card .checkin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-card .checkin-item {
+  font-size: 0.9rem;
+  color: #3a3a3c;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Responsive - Tablet/Desktop */
+@media (min-width: 768px) {
+  body > div {
+    padding: 2rem;
+  }
+}
+
+/* ==============================
+   Profile Enhancements - 2025 Design
+============================= */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 16px !important;
+  padding: 1.25rem;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #2d2d2d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 24px;
+  margin: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: fadeInUp 0.5s ease-out;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.theme-switcher {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.theme-switcher .button {
+  flex: 1;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+}
+
+.small-text {
+  font-size: 0.8rem;
+  color: #8e8e93;
+  text-align: center;
+  margin-top: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Profile Picture Styles */
+.profile-picture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  object-fit: cover;
+  margin: 0 auto 1rem;
+  display: block;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Achievement Section */
+.achievements-section {
+  margin: 1.5rem 0;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ==============================
+   Additional 2025 Modern Enhancements
+============================= */
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.7);
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Micro-interactions */
+.auth-card:active {
+  transform: scale(0.98);
+}
+
+/* Focus states for accessibility */
+.nav-item:focus,
+.button:focus,
+.input:focus,
+.picker:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+  }
+  
+  .auth-card {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .auth-title {
+    color: #ffffff !important;
+  }
+  
+  .card-title {
+    color: #ffffff !important;
+  }
+}
+
+/* Theme Variables (Custom CSS Vars for Switcher) */
+body {
+  --theme-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Modern gradient */
+}
+
+body.blue-theme {
+  --theme-color: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); /* Blue Variant */
+}
+
+body.green-theme {
+  --theme-color: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); /* Green Variant */
+}
+
+/* Performance optimizations */
+.auth-card,
+.button,
+.input,
+.nav-item {
+  will-change: transform;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==============================
+   AI Insights Page Styles - 2025 Modern Design
+============================= */
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+}
+
+.loading-spinner {
+  font-size: 3rem;
+  animation: spin 2s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Insights Tabs */
+.insights-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  min-width: fit-content;
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Insights Content */
+.insights-content {
+  margin-bottom: 1.5rem;
+}
+
+.insights-section {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* AI Greeting */
+.ai-greeting {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.ai-avatar {
+  font-size: 3rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+.ai-message h3 {
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.ai-message p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Wellness Score Card */
+.wellness-score-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.wellness-score-card h3 {
+  color: #ffffff;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.score-display {
+  margin-bottom: 1rem;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  position: relative;
+}
+
+.score-circle::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: -1;
+  opacity: 0.3;
+}
+
+.score-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.score-description {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Achievement Card */
+.achievement-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-card h3 {
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.achievement-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.achievement-icon {
+  font-size: 2.5rem;
+  animation: pulse 2s infinite;
+}
+
+.achievement-text h4 {
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.achievement-text p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Insights Grid */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.insight-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.insight-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.insight-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.insight-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.insight-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+/* Insight Popup */
+.insight-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.insight-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.insight-content h4 {
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.insight-content p {
+  color: #2d2d2d;
+  margin: 0 0 1.5rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.close-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Trend Chart */
+.trend-chart {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header h4 {
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.chart-header p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.chart-container {
+  height: 200px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.simple-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  gap: 0.5rem;
+}
+
+.chart-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+}
+
+.bar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px 4px 0 0;
+  width: 100%;
+  min-height: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.bar:hover {
+  transform: scaleY(1.05);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.bar-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.bar-value {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Pattern Insights */
+.pattern-insights {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.pattern-insights h4 {
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.pattern-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.25rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.pattern-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pattern-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.pattern-card h5 {
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.pattern-card p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Quiz Styles */
+.quiz-container {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-question {
+  margin-bottom: 2rem;
+}
+
+.quiz-question h4 {
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quiz-option {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.quiz-option:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(4px);
+}
+
+.quiz-option.selected {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+  color: #ffffff;
+  transform: translateX(8px);
+}
+
+.quiz-submit-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.quiz-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.quiz-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Quiz Result */
+.quiz-result {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.result-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.result-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  animation: bounce 1s ease-in-out;
+}
+
+.result-header h4 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.result-description {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.result-advice {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.4;
+}
+
+.retake-quiz-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retake-quiz-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Recommendations Grid */
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.recommendation-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.rec-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.recommendation-card h4 {
+  color: #ffffff;
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.recommendation-card p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Responsive Design for Insights */
+@media (max-width: 480px) {
+  .insights-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  
+  .pattern-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ai-greeting {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .achievement-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .insights-tabs {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  
+  .tab-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
