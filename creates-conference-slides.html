@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25th CREATES Conference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #764ba2;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .date-info {
+            font-size: 1.5em;
+            color: #555;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+
+        .content {
+            font-size: 1.3em;
+            line-height: 1.8;
+            color: #333;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .highlight {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .slide-indicator {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: white;
+            width: 30px;
+            border-radius: 6px;
+        }
+
+        ul {
+            text-align: left;
+            max-width: 700px;
+            margin: 30px auto;
+            font-size: 1.2em;
+            line-height: 2;
+        }
+
+        li {
+            margin: 15px 0;
+            color: #333;
+        }
+
+        li::marker {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Welcome -->
+    <div class="slide-container">
+        <div class="slide active" id="slide1">
+            <h1>25th CREATES Conference</h1>
+            <div class="subtitle">Creativity and Research on Education, Arts, Technology, Enterprise, and Science</div>
+            <div class="date-info">
+                <strong>Friday, November 21st, 2025</strong><br>
+                2:00pm - 5:00pm<br>
+                B Building Atrium
+            </div>
+            <div class="content">
+                <p>Georgia Gwinnett College's premier platform for showcasing high-impact academic research, experiential learning projects, and creative endeavors.</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: About the Conference -->
+        <div class="slide" id="slide2">
+            <h2>What is CREATES?</h2>
+            <div class="content">
+                <p>This year marks a significant milestone as the former CREATES Symposium has been officially expanded into the <span class="highlight">25th CREATES Conference</span>.</p>
+                <ul style="margin-top: 40px;">
+                    <li>Extended schedule with enhanced support for student presenters</li>
+                    <li>Platform for high-impact academic research</li>
+                    <li>Showcase for experiential learning projects</li>
+                    <li>Celebration of creative endeavors</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Why Attend -->
+        <div class="slide" id="slide3">
+            <h2>Join Us!</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Presentations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">430+</div>
+                    <div class="stat-label">Students & Faculty</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">25th</div>
+                    <div class="stat-label">Annual Conference</div>
+                </div>
+            </div>
+            <div class="content" style="margin-top: 50px;">
+                <p><strong>We strongly encourage you to attend</strong> to support our students, celebrate their dedication, and recognize the high-quality achievements completed at GGC.</p>
+                <p style="margin-top: 30px; font-size: 1.1em; color: #667eea;">
+                    Oral, Online, and Poster Presentations
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="slide-indicator">
+        <div class="indicator active" onclick="goToSlide(0)"></div>
+        <div class="indicator" onclick="goToSlide(1)"></div>
+        <div class="indicator" onclick="goToSlide(2)"></div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            indicators[currentSlide].classList.remove('active');
+            
+            currentSlide = (n + totalSlides) % totalSlides;
+            
+            slides[currentSlide].classList.add('active');
+            indicators[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function goToSlide(n) {
+            showSlide(n);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+    </script>
+</body>
+</html>
+
